@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+/Server/.vs
+/Server/GameServer/x64/Debug
+/Server/DummyClient/x64/Debug
+/Server/ServerCore/x64/Debug
