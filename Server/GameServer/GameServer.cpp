@@ -1,54 +1,50 @@
 ﻿#include "pch.h"
 #include <iostream>
 #include "CorePch.h"
-
 #include <thread>
+#include <atomic>
 
-void HelloThread() 
+// atomic atom(원자)
+atomic<int32> sum = 0;
+
+void Add() 
 {
-	cout << "Hello Thread" << endl;
+	for (int32 i = 0; i < 1'000'000; i++) {
+
+		sum.fetch_add(1);
+		//sum++;
+		/*int32 eax = sum;
+		eax = eax + 1;
+		sum = eax;*/
+	}
 }
 
-void HelloThread2(int32 num)
+void Sub() 
 {
-	cout << num << endl;
+	for (int32 i = 0; i < 1'000'000; i++) {
+
+
+		sum.fetch_add(-1);
+
+		//int ebx = sum;
+		//ebx = ebx + 1;
+		//sum = ebx;
+
+	}
 }
 
 int main()
 {
-	vector<std::thread> v;
-	//v.resize(10);
+	Add();
+	Sub();
+	cout << sum << endl;
 
-	//std::thread t;
-	//auto id1 = t.get_id();	// 스레드 마다 id;;
+	std::thread t1(Add);
+	std::thread t2(Sub);
+	
+	t1.join();
+	t2.join();
+	cout << sum << endl;
 
-
-	//t = std::thread(HelloThread);
-
-	//int32 count = t.hardware_concurrency(); // cpu 코어 개수?
-	//auto id2 = t.get_id();	// 스레드 마다 id
-
-	//std::thread t2;
-
-	//t2 = std::thread(HelloThread2, 1);
-	//
-	////t.detach(); // std::thread 객체에서 실제 스레드를 분리\
-
-
-	//if (t.joinable())
-	//	t.join();
-
-	//t2.join();
-
-	for (int32 i = 0; i < 10; i++) {
-		v.push_back(std::thread(HelloThread2, i));
-	}
-
-	for (int32 i = 0; i < 10; i++) {
-		if (v[i].joinable())
-			v[i].join();
-	}
-
-	cout << "Hello Main" << endl;
 }
 
