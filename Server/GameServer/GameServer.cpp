@@ -3,48 +3,65 @@
 #include "CorePch.h"
 #include <thread>
 #include <atomic>
+#include <mutex>
 
-// atomic atom(원자)
-atomic<int32> sum = 0;
+vector<int32> v;
 
-void Add() 
-{
-	for (int32 i = 0; i < 1'000'000; i++) {
+// Mutual Exclusive (상호 배타적)
+mutex m;
 
-		sum.fetch_add(1);
-		//sum++;
-		/*int32 eax = sum;
-		eax = eax + 1;
-		sum = eax;*/
+//RAII (Resource Acquisition Is Initialization)
+template<typename T>
+class LockGuard {
+public:
+	LockGuard(T& m) {
+		_mutex = &m;
+		_mutex->lock();
 	}
-}
 
-void Sub() 
-{
-	for (int32 i = 0; i < 1'000'000; i++) {
+	~LockGuard() {
+		_mutex->unlock(); 
+	}
 
 
-		sum.fetch_add(-1);
+private:
+	T* _mutex;
+};
 
-		//int ebx = sum;
-		//ebx = ebx + 1;
-		//sum = ebx;
+void Push() {
+	for (int32 i = 0; i < 10000; i++) 
+	{
 
+		//LockGuard<std::mutex> lockGuard(m);
+		//std::lock_guard<std::mutex> lockGuard(m);
+		std::unique_lock<std::mutex> uniqueLock(m, std::defer_lock);
+
+		uniqueLock.lock();
+		// 화장실 문 잠구기
+		//m.lock();
+
+		v.push_back(i);
+
+		if (i == 5000) {
+			break;
+		}
+
+		// 자물쇠 푸리
+		//m.unlock();
 	}
 }
 
 int main()
 {
-	Add();
-	Sub();
-	cout << sum << endl;
+	v.reserve(20000);
 
-	std::thread t1(Add);
-	std::thread t2(Sub);
-	
+	std::thread t1(Push);
+	std::thread t2(Push);
+
 	t1.join();
 	t2.join();
-	cout << sum << endl;
+
+	cout << v.size() << endl;
 
 }
 
