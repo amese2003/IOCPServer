@@ -6,30 +6,37 @@
 #include <mutex>
 #include <Windows.h>
 #include <future>
+#include "ConcurrentStack.h"
+#include "ConcurrentQueue.h"
 
-thread_local int32 LThreadId = 0;
-thread_local queue<int32> q;
+LockQueue<int32> q;
+LockStack<int32> s;
 
-void ThreadMain(int32 threadID) {
-	LThreadId = threadID;
+void Push() {
+	while (true) {
+		int32 value = rand() & 100;
+		q.Push(value);
 
-	while(true) {
-		cout << "스레드!" << LThreadId << endl;
-		this_thread::sleep_for(1s);
+		this_thread::sleep_for(10ms);
+	}
+}
+
+void Pop() {
+	while (true) {
+		int32 data;
+		if (q.TryPop(OUT data))
+			cout << data << endl;
 	}
 }
 
 int main()
 {
-	vector<thread> threads;
+	thread t1(Push);
+	thread t2(Pop);
+	//thread t3(Pop);
 
-	for (int32 i = 0; i < 10; i++) {
-		int32 threadId = i + 1;
-		threads.push_back(thread(ThreadMain, threadId));
-	}
-
-	for (thread& t : threads)
-		t.join();
-
+	t1.join();
+	t2.join();
+	//t3.join();
 }
 
