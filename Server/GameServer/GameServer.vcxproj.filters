@@ -7,6 +7,9 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{25e59a59-8808-4f27-ab59-8d7736f5c351}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lockFree">
+      <UniqueIdentifier>{dd8e8f5c-2449-4c3c-bafc-ea791a3897f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp">
@@ -16,21 +19,21 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="ConcurrentQueue.cpp">
-      <Filter>Main</Filter>
+      <Filter>lockFree</Filter>
     </ClCompile>
     <ClCompile Include="ConcurrentStack.cpp">
-      <Filter>Main</Filter>
+      <Filter>lockFree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="ConcurrentQueue.h">
-      <Filter>Main</Filter>
-    </ClInclude>
     <ClInclude Include="ConcurrentStack.h">
-      <Filter>Main</Filter>
+      <Filter>lockFree</Filter>
+    </ClInclude>
+    <ClInclude Include="ConcurrentQueue.h">
+      <Filter>lockFree</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
