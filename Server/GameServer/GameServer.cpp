@@ -1,103 +1,45 @@
 ﻿#include "pch.h"
 #include <iostream>
 #include "CorePch.h"
+#include <thread>
 #include <atomic>
 #include <mutex>
-#include <windows.h>
+#include <Windows.h>
 #include <future>
-#include "ThreadManager.h"
+#include "ConcurrentStack.h"
+#include "ConcurrentQueue.h"
 
-#include "PlayerManager.h"
-#include "AccountManager.h"
+LockFreeQueue<int32> q;
+LockFreeStack<int32> s;
 
-using namespace std;
+void Push() {
+	while (true) {
+		int32 value = rand() & 100;
+		s.Push(value);
 
-vector<bool> numbers;
-mutex lock;
-
-// 소수 구하기 (멀티 스레딩)
-bool IsPrime(int num) 
-{
-	if (num <= 1)
-		return false;
-
-	if (num == 2)
-		return true;
-
-	for (int i = 2; i < num; i++) 
-	{
-		if (num % i == 0)
-			return false;
+		//this_thread::sleep_for(10ms);
 	}
-
-	return true;
-}
-//
-//int GetPrimeCount(int start, int end)
-//{
-//	int count = 0;
-//
-//
-//	
-//
-//	for (int i = start; i < end; i++) {
-//		if (numbers[i] == false)
-//			continue;
-//
-//		int sum = i - start + 2;
-//
-//		for (int i = start; start <= end; i += sum)
-//		{
-//			if (i % sum == 0)
-//				numbers[i] = false;
-//		}
-//
-//		if (numbers[i] == true)
-//			count++;
-//	}
-//
-//	return count;
-//}
-
-int GetPrimeCount(int start, int end)
-{
-	int count = 0;
-
-	for (int number = start; number <= end; number++)
-	{
-		if (IsPrime(number))
-			count++;
-	}
-
-	return count;
 }
 
+void Pop() {
+	while (true) {
+		auto data = s.TryPop();
 
+		if (data != nullptr)
+			cout << (*data) << endl;
+	}
+}
 
 int main()
 {
-	const int MAX_NUMBER = 100'0000;
-	atomic<int> primeCount = 0;
+	/*shared_ptr<int32> ptr;
+	bool value = atomic_is_lock_free(&ptr);*/
 
-	// 1 ~ MAX_NUMBER까지의 소수 개수
-	numbers = vector<bool>(MAX_NUMBER + 1, true);
+	thread t1(Push);
+	thread t2(Pop);
+	//thread t3(Pop);
 
-	//int ThreadCount = 3;
-	int ThreadCount = thread::hardware_concurrency();
-	int unit = (MAX_NUMBER / ThreadCount) + 1;
-
-	vector<thread> threads;
-
-	for (int i = 0; i < ThreadCount; i++) {
-		int start = (i * unit) + 1;
-		int end = min(MAX_NUMBER, (i + 1) * unit);
-
-		threads.push_back(thread([start, end, &primeCount]() {  primeCount += GetPrimeCount(start, end);  }));
-	}
-
-	for (int i = 0; i < threads.size(); i++) 
-		threads[i].join();
-	
-	cout << primeCount;
+	t1.join();
+	t2.join();
+	//t3.join();
 }
-
