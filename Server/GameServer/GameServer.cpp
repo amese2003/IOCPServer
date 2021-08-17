@@ -8,38 +8,91 @@
 #include <future>
 #include "ConcurrentStack.h"
 #include "ConcurrentQueue.h"
+#include "RefCounting.h";
 
-LockFreeQueue<int32> q;
-LockFreeStack<int32> s;
+using namespace std;
 
-void Push() {
-	while (true) {
-		int32 value = rand() & 100;
-		s.Push(value);
 
-		//this_thread::sleep_for(10ms);
+class Writhe : public RefCountable
+{
+public:
+	int _hp = 125;
+	int _posX = 0;
+	int _posY = 0;
+};
+using WritheRef = TSharedPtr<Writhe>;
+
+
+class Missile : public RefCountable
+{
+public:
+	void SetTarget(Writhe* target)
+	{
+		_target = target;
+		// 중간에 개입 가능
+
+		//target->AddRef();
+		Test(target);
 	}
-}
 
-void Pop() {
-	while (true) {
-		auto data = s.TryPop();
+	void Test(WritheRef target)
+	{
 
-		if (data != nullptr)
-			cout << (*data) << endl;
 	}
-}
+
+	bool Update()
+	{
+		if (_target == nullptr)
+			return true;
+
+		int posX = _target->_posX;
+		int posY = _target->_posY;
+
+		// TODO : 쫓아간다
+
+		if (_target->_hp == 0)
+		{
+			//_target->ReleaseRef();
+			_target = nullptr;
+			return true;
+		}
+
+		return false;
+	}
+
+	Writhe* _target = nullptr;
+};
+
+using MissileRef = TSharedPtr<Missile>;
+
 
 int main()
 {
-	/*shared_ptr<int32> ptr;
-	bool value = atomic_is_lock_free(&ptr);*/
+	WritheRef writhe(new Writhe());
+	writhe->ReleaseRef();
+	MissileRef missile(new Missile());
+	missile->ReleaseRef();
 
-	thread t1(Push);
-	thread t2(Pop);
-	//thread t3(Pop);
+	missile->SetTarget(writhe);
 
-	t1.join();
-	t2.join();
-	//t3.join();
+	// 레이스 피격
+	writhe->_hp = 0;
+	//writhe->ReleaseRef();
+	writhe = nullptr;
+	//delete writhe;
+
+	while (true)
+	{
+		if (missile) {
+			if (missile->Update())
+			{
+				//missile->ReleaseRef();
+				missile = nullptr;
+			}
+		}
+	}
+
+	missile->ReleaseRef();
+	missile = nullptr;
+	//delete missile;
 }
