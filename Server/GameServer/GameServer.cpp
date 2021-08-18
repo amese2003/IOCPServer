@@ -12,87 +12,59 @@
 
 using namespace std;
 
+using KnightRef = TSharedPtr<class Knight>;
 
-class Writhe : public RefCountable
+class Knight
 {
 public:
-	int _hp = 125;
-	int _posX = 0;
-	int _posY = 0;
-};
-using WritheRef = TSharedPtr<Writhe>;
+	Knight()
+	{
+		cout << "Knight()" << endl;
+	}
 
+	~Knight()
+	{
+		cout << "~Knight()" << endl;
+	}
 
-class Missile : public RefCountable
-{
-public:
-	void SetTarget(Writhe* target)
+	void SetTarget(KnightRef target)
 	{
 		_target = target;
-		// 중간에 개입 가능
-
-		//target->AddRef();
-		Test(target);
 	}
 
-	void Test(WritheRef target)
-	{
-
-	}
-
-	bool Update()
-	{
-		if (_target == nullptr)
-			return true;
-
-		int posX = _target->_posX;
-		int posY = _target->_posY;
-
-		// TODO : 쫓아간다
-
-		if (_target->_hp == 0)
-		{
-			//_target->ReleaseRef();
-			_target = nullptr;
-			return true;
-		}
-
-		return false;
-	}
-
-	Writhe* _target = nullptr;
+	KnightRef _target = nullptr;
 };
 
-using MissileRef = TSharedPtr<Missile>;
 
 
 int main()
 {
-	WritheRef writhe(new Writhe());
-	writhe->ReleaseRef();
-	MissileRef missile(new Missile());
-	missile->ReleaseRef();
+	// 1) 이미 만들어진 클래스 대상으로는 사용 불가
+	// 2) 순환 (Cycle) 문제
 
-	missile->SetTarget(writhe);
 
-	// 레이스 피격
-	writhe->_hp = 0;
-	//writhe->ReleaseRef();
-	writhe = nullptr;
-	//delete writhe;
 
-	while (true)
+	// shared_ptr
+	// weak_ptr
+	// [Knight][RefCountingBlock]
+	// [Knight | RefCountingBlock (uses, weak)]
+	// [T*][RefCountBlocking*]
+
+	// RefCountBlock(useCount(shared), weakCount) 
+	shared_ptr<Knight> spr= make_shared<Knight>();
+	weak_ptr<Knight> wpr = spr;
+
+	bool expired = wpr.expired();
+	shared_ptr<Knight> spr2 = wpr.lock();
+
+	// [T*][RefCountBlocking*]
+	shared_ptr<Knight> spr2 = spr;
+
+	bool expired = wpr.expired();
+	shared_ptr<Knight> spr2 = wpr.lock();
+	if (spr2 != nullptr)
 	{
-		if (missile) {
-			if (missile->Update())
-			{
-				//missile->ReleaseRef();
-				missile = nullptr;
-			}
-		}
+
 	}
 
-	missile->ReleaseRef();
-	missile = nullptr;
-	//delete missile;
 }
