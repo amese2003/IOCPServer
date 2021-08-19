@@ -6,13 +6,10 @@
 #include <mutex>
 #include <Windows.h>
 #include <future>
-#include "ConcurrentStack.h"
-#include "ConcurrentQueue.h"
-#include "RefCounting.h";
+#include "Memory.h"
 
 using namespace std;
 
-using KnightRef = TSharedPtr<class Knight>;
 
 class Knight
 {
@@ -22,49 +19,62 @@ public:
 		cout << "Knight()" << endl;
 	}
 
+	Knight(int32 hp) : _hp(hp)
+	{
+		cout << "Knight(hp)" << endl;
+	}
+
 	~Knight()
 	{
 		cout << "~Knight()" << endl;
 	}
 
-	void SetTarget(KnightRef target)
+	/*void* operator new(size_t size)
 	{
-		_target = target;
+		cout << "Knight new! " << size << endl;
+		void* ptr = ::malloc(size);
+		return ptr;
 	}
 
-	KnightRef _target = nullptr;
+	void operator delete(void* ptr)
+	{
+		cout << "Knight delete!" << endl;
+		::free(ptr);
+	}*/
+
+	int32 _hp = 100;
+	int32 _mp = 0;
+
 };
 
-
+// new operator overloading (Global)
+//void* operator new(size_t size)
+//{
+//	cout << "new! " << size << endl;
+//	void* ptr = ::malloc(size);
+//	return ptr;
+//}
+//
+//void operator delete(void* ptr)
+//{
+//	cout << "delete!" << endl;
+//	::free(ptr);
+//}
+//void* operator new[](size_t size)
+//{
+//	cout << "new[]! : " << size << endl;
+//	void* ptr = ::malloc(size);
+//	return ptr;
+//}
+//
+//void operator delete[](void* ptr)
+//{
+//	cout << "delete![]" << endl;
+//	::free(ptr);
+//}
 
 int main()
 {
-	// 1) 이미 만들어진 클래스 대상으로는 사용 불가
-	// 2) 순환 (Cycle) 문제
-
-
-
-	// shared_ptr
-	// weak_ptr
-	// [Knight][RefCountingBlock]
-	// [Knight | RefCountingBlock (uses, weak)]
-	// [T*][RefCountBlocking*]
-
-	// RefCountBlock(useCount(shared), weakCount) 
-	shared_ptr<Knight> spr= make_shared<Knight>();
-	weak_ptr<Knight> wpr = spr;
-
-	bool expired = wpr.expired();
-	shared_ptr<Knight> spr2 = wpr.lock();
-
-	// [T*][RefCountBlocking*]
-	shared_ptr<Knight> spr2 = spr;
-
-	bool expired = wpr.expired();
-	shared_ptr<Knight> spr2 = wpr.lock();
-	if (spr2 != nullptr)
-	{
-
-	}
-
+	Knight* knight = xnew<Knight>(10);
+	xdelete(knight);
 }
