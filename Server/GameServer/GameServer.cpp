@@ -10,6 +10,7 @@
 
 #include "Allocator.h"
 #include "ThreadManager.h"
+#include "LockFreeStack.h"
 
 using namespace std;
 
@@ -44,23 +45,55 @@ public:
 
 };
 
+DECLSPEC_ALIGN(16)
+class Data
+{
+public:
+	SListEntry _entry;
+	int64 _rand = rand() % 1000;
+};
+
+SListHeader* GHeader;
+
 int main()
 {
-	for (int32 i = 0; i < 5; i++)
+	GHeader = new SListHeader();
+	ASSERT_CRASH(((uint64)GHeader % 16) == 0);
+	InitializeHead(GHeader);
+
+	for (int32 i = 0; i < 3; i++)
 	{
 		GThreadManager->Launch([]() {
 			while (true)
 			{
-				Vector<Knight> v(10);
-				Map<int32, Knight> m;
-				m[100] = Knight();
+				Data* data = new Data();
+				ASSERT_CRASH(((uint64)data % 16) == 0);
+				PushEntrySList(GHeader, (SListEntry*)data);
 				this_thread::sleep_for(10ms);
 			}
 		});
 	}
 
+	for (int32 i = 0; i < 3; i++)
+	{
+		GThreadManager->Launch([]() {
+			while (true)
+			{
+				Data* pop = nullptr;
+				pop = (Data*)PopEntrySList(GHeader);
+
+				if (pop)
+				{
+					cout << pop->_rand << endl;
+					delete pop;
+				}
+				else
+				{
+					cout << "NONE" << endl;
+				}
+			}
+		});
+	}
+
 	GThreadManager->Join();
-
-
-
 }
