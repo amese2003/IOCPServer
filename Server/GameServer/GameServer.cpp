@@ -10,87 +10,49 @@
 
 #include "Allocator.h"
 #include "ThreadManager.h"
-#include "LockFreeStack.h"
 
 using namespace std;
 
-class Player
+class Knight
 {
 public:
-	Player() {};
-	virtual ~Player() {};
+	int32 _hp = rand() % 1000;
 };
 
-
-class Knight : public Player
+class Monster
 {
 public:
-	Knight()
-	{
-		cout << "Knight()" << endl;
-	}
-
-	Knight(int32 hp) : _hp(hp)
-	{
-		cout << "Knight(hp)" << endl;
-	}
-
-	~Knight()
-	{
-		cout << "~Knight()" << endl;
-	}
-
-	int32 _hp = 100;
-	int32 _mp = 0;
-
+	int64 _id = 0;
 };
-
-DECLSPEC_ALIGN(16)
-class Data
-{
-public:
-	SListEntry _entry;
-	int64 _rand = rand() % 1000;
-};
-
-SListHeader* GHeader;
 
 int main()
 {
-	GHeader = new SListHeader();
-	ASSERT_CRASH(((uint64)GHeader % 16) == 0);
-	InitializeHead(GHeader);
+	Knight* knights[100];
 
-	for (int32 i = 0; i < 3; i++)
+	for (int32 i = 0; i < 100; i++)
+		knights[i] = ObjectPool<Knight>::Pop();
+
+	for (int32 i = 0; i < 100; i++)
 	{
-		GThreadManager->Launch([]() {
-			while (true)
-			{
-				Data* data = new Data();
-				ASSERT_CRASH(((uint64)data % 16) == 0);
-				PushEntrySList(GHeader, (SListEntry*)data);
-				this_thread::sleep_for(10ms);
-			}
-		});
+		ObjectPool<Knight>::Push(knights[i]);
+		knights[i] = nullptr;
 	}
 
+	shared_ptr<Knight> sptr = ObjectPool<Knight>::MakeShared();
+	shared_ptr<Knight> sptr2 = MakeShared<Knight>();
+
+
+
 	for (int32 i = 0; i < 3; i++)
 	{
 		GThreadManager->Launch([]() {
 			while (true)
 			{
-				Data* pop = nullptr;
-				pop = (Data*)PopEntrySList(GHeader);
+				Knight* knight = xnew<Knight>();
 
-				if (pop)
-				{
-					cout << pop->_rand << endl;
-					delete pop;
-				}
-				else
-				{
-					cout << "NONE" << endl;
-				}
+				cout << knight->_hp << endl;
+				this_thread::sleep_for(10ms);
+				xdelete(knight);
 			}
 		});
 	}

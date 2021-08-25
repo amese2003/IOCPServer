@@ -24,9 +24,6 @@
     <ClCompile Include="AccountManager.cpp">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="LockFreeStack.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -37,9 +34,6 @@
     </ClInclude>
     <ClInclude Include="AccountManager.h">
       <Filter>Test</Filter>
-    </ClInclude>
-    <ClInclude Include="LockFreeStack.h">
-      <Filter>Main</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
