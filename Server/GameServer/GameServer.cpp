@@ -77,6 +77,9 @@ int main()
 		while (true)
 		{
 			char recvBuffer[1000];
+
+			this_thread::sleep_for(1s);
+
 			int32 recvLen = ::recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
 
 			if (recvLen <= 0)
@@ -89,14 +92,14 @@ int main()
 			cout << "Recv Data! Data = " << recvBuffer << endl;
 			cout << "Recv Data! Len = " << recvLen << endl;
 
-			int resCode = ::send(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
+			/*int resCode = ::send(clientSocket, recvBuffer, recvLen, 0);
 
 			if (resCode == SOCKET_ERROR)
 			{
 				int32 errCode = ::WSAGetLastError();
 				cout << "Send ErrorCode : " << errCode << endl;
 				return 0;
-			}
+			}*/
 
 
 		}
