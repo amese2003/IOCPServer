@@ -27,73 +27,99 @@ int main()
 	if (::WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 		return 0;
 
-	SOCKET serverSocket = ::socket(AF_INET, SOCK_DGRAM, 0);
+	// 블로킹(Blocking) 소켓
+	// accept -> 접속한 클라가 있을 때
+	// connect -> 서버 접속 성공했을 때
+	// send, sendto -> 요청한 데이터를 송신 버퍼에 복사했을 때
+	// recv, recvfrom -> 수신 버퍼에 도착한 데이터가 있고, 이를 유저레벨 버퍼에 복사했을 때
 	
-	if (serverSocket == INVALID_SOCKET)
-	{
-		HandleError("Socket");
+	// 논블로킹 (Non-blocking)
+	SOCKET listenSocket = ::socket(AF_INET, SOCK_STREAM, 0);
+
+	if (listenSocket == INVALID_SOCKET)
 		return 0;
-	}
 
-	// 옵션을 해석하고 처리할 주체?
-	// 소켓 코드 -> SOL_SOCKET
-	// IPv4 -> IPPROTO_IP
-	// TCP 프로토콜 -> IPPROTO_TCP
+	u_long on = 1;
+	if (::ioctlsocket(listenSocket, FIONBIO, &on) == INVALID_SOCKET)
+		return 0;
 
-	// SO_KEEPALIVE = 주기적으로 연결 상태 확인 여부 (TCP Only)
-	// 상대방이 소리소문 없이 연결을 끊는다면?
-	// 주기적으로 TCP 프로ㅗ콜 연결 상태 확인 -> 끊어진 연결 감지
+	SOCKADDR_IN serverAddr;
+	::memset(&serverAddr, 0, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_addr.s_addr = ::htonl(INADDR_ANY);
+	serverAddr.sin_port = ::htons(7777);
 
-	/*bool enable = true;
-	::setsockopt(serverSocket, SOL_SOCKET, SO_KEEPALIVE, (char*)&enable, sizeof(enable));*/
+	if (::bind(listenSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
+		return 0;
 
-	// SO_LINGER = 지연하다
-	// 송신 버퍼에 있는 데이터를 보낼 것이가? 날려버릴것인가?
+	if (::listen(listenSocket, SOMAXCONN) == SOCKET_ERROR)
+		return 0;
+	
+	cout << "Accept" << endl;
 
-	// onoff = 0이면 closesockt()이 바로 리턴, 아니면 linger초만큼 대기 (default 0)
-	// linger : 대기시간
-	/*LINGER linger;
-	linger.l_onoff = 1;
-	linger.l_linger = 5;
-	::setsockopt(serverSocket, SOL_SOCKET, SO_KEEPALIVE, (char*)&linger, sizeof(linger));*/
+	SOCKADDR_IN clientAddr;
+	int32 addrLen = sizeof(clientAddr);
 
-
-	// Half-Close
-	// SD_SEND : send 막는다
-	// SD_RECEIVE : recv 막는다
-	// SD_BOTH : 둘다
-	/*::shutdown(serverSocket, SD_SEND);*/
-
-	// SO_SNDBUF = 송신 버퍼 크기
-	// SO_RCVBUF = 수신 버퍼 크기
-
-	int32 sendBufferSize;
-	int32 optionLen = sizeof(sendBufferSize);
-	::getsockopt(serverSocket, SOL_SOCKET, SO_SNDBUF, (char*)&sendBufferSize, &optionLen);
-	cout << "송신 버퍼 크기 : " << sendBufferSize << endl;
-
-
-	int32 recvBufferSize;
-	optionLen = sizeof(recvBufferSize);
-	::getsockopt(serverSocket, SOL_SOCKET, SO_RCVBUF, (char*)&recvBufferSize, &optionLen);
-	cout << "수신 버퍼 크기 : " << recvBufferSize << endl;
-
-	// SO_REUSEADDR
-	// IP주소 및 PORT 재사용
+	// Accept
+	while (true) 
 	{
-		bool enable = true;
-		::setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(enable));
+		SOCKET clientSocket = ::accept(listenSocket, (SOCKADDR*)&clientAddr, &addrLen);
+		if (clientSocket == INVALID_SOCKET)
+		{
+			// 원래 블록 했어야 했는데... 너가 논블로킹으로 하라며?
+			if (::WSAGetLastError() == WSAEWOULDBLOCK)
+				continue;
+
+			// Error
+			break;
+		}
+
+		cout << "Client Connected!" << endl;
+	
+		// Recv
+		while (true)
+		{
+			char recvBuffer[1000];
+			int32 recvLen = ::recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
+
+			if (recvLen == SOCKET_ERROR)
+			{
+				// 논블로킹 하라매?
+				if (::WSAGetLastError() == WSAEWOULDBLOCK)
+					continue;
+
+				// Error
+				break;
+			}
+			else if (recvLen == 0)
+			{
+				// 연결 끊김
+				break;
+			}
+
+			cout << "Recv Data Len = " << recvLen << endl;
+			
+			// Send
+			while (true)
+			{
+				if (::send(clientSocket, recvBuffer, recvLen, 0) == SOCKET_ERROR)
+				{
+					// 논블로킹 하라매?
+					if (::WSAGetLastError() == WSAEWOULDBLOCK)
+						continue;
+
+					// Error
+					break;
+				}
+
+				cout << "Send Data Leng = " << recvLen << endl;
+				break;
+			}
+		}
+	
 	}
 
-	// IPPROTO_TCP
-	// TCP_NODELAY = Nagle 네이글 알고리즘 작동 여부
-	// 데이터가 충분히 크면 보내고, 그렇지 않으면 데이터가 충분히 쌓일때까지 대기
-	// 장점 : 작은 패킷이 불필요하게 많이 생성되는 일 방지
-	// 단점 : 반응 시간 손해
-	{
-		bool enable = true;
-		::setsockopt(serverSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&enable, sizeof(enable));
-	}
+
 
 	// 윈속 종료
 	::WSACleanup();
