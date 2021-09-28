@@ -10,15 +10,18 @@
 
 
 using namespace std;
-
-#include "SocketUtils.h"
-#include "Listener.h"
+#include "Service.h"
+#include "Session.h"
 
 int main()
 {
-	Listener listener;
-	listener.StartAccept(NetAddress(L"127.0.0.1", 7777));
+	ServerServiceRef service = MakeShared<ServerService>(
+		NetAddress(L"127.0.0.1", 7777),
+		MakeShared<IocpCore>(),
+		MakeShared<Session>, // TODO : SessionManager
+		100);
 
+	ASSERT_CRASH(service->Start());
 
 	for (int32 i = 0; i < 5; i++)
 	{
@@ -27,7 +30,7 @@ int main()
 		
 			while (true)
 			{
-				GIocpCore.Dispatch();
+				service->GetIocpCore()->Dispatch();
 			}
 			
 		});
