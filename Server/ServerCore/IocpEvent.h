@@ -77,6 +77,6 @@ class SendEvent : public IocpEvent
 public:
 	SendEvent() : IocpEvent(EventType::Send) {}
 
-private:
-	// TODO
+	// TEMP
+	vector<BYTE> buffer;
 };
