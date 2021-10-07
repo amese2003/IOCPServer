@@ -5,6 +5,7 @@ class Session;
 enum class EventType : uint8
 {
 	Connect,
+	Disconnect,
 	Accept,
 	//PreRecv, 0byte receive
 	Recv,
@@ -35,6 +36,19 @@ class ConnectEvent : public IocpEvent
 {
 public:
 	ConnectEvent() : IocpEvent(EventType::Connect) {}
+
+private:
+	// TODO
+};
+
+/*----------------------
+	  Disconnect Event
+-----------------------*/
+
+class DisconnectEvent : public IocpEvent
+{
+public:
+	DisconnectEvent() : IocpEvent(EventType::Disconnect) {}
 
 private:
 	// TODO
