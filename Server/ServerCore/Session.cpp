@@ -168,19 +168,16 @@ void Session::RegisterSend()
 			SendBufferRef sendBuffer = _sendQueue.front();
 
 			writeSize += sendBuffer->WriteSize();
-
 			// TODO : 예외 체크
 
 			_sendQueue.pop();
 			_sendEvent.sendBuffers.push_back(sendBuffer);
 		}
-
 	}
 
-	// Scatter-Gather (흩어져 있는 데이터를 모아서 한 방에 보낸다)
+	// Scatter-Gather (흩어져 있는 데이터들을 모아서 한 방에 보낸다)
 	Vector<WSABUF> wsaBufs;
 	wsaBufs.reserve(_sendEvent.sendBuffers.size());
-
 	for (SendBufferRef sendBuffer : _sendEvent.sendBuffers)
 	{
 		WSABUF wsaBuf;
@@ -189,11 +186,8 @@ void Session::RegisterSend()
 		wsaBufs.push_back(wsaBuf);
 	}
 
-	
-
-	
 	DWORD numOfBytes = 0;
-	if (SOCKET_ERROR == ::WSASend(_socket, wsaBufs.data(), static_cast<DWORD>(wsaBufs.size()), OUT &numOfBytes, 0, &_sendEvent, nullptr))
+	if (SOCKET_ERROR == ::WSASend(_socket, wsaBufs.data(), static_cast<DWORD>(wsaBufs.size()), OUT & numOfBytes, 0, &_sendEvent, nullptr))
 	{
 		int32 errorCode = ::WSAGetLastError();
 		if (errorCode != WSA_IO_PENDING)
