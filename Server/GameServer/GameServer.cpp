@@ -15,6 +15,7 @@ using namespace std;
 #include "Service.h"
 #include "Session.h"
 #include "ServerPacketHandler.h"
+#include <tchar.h>
 
 
 
@@ -43,12 +44,15 @@ int main()
 
 	cout << "Client Connected!" << endl;
 
-	char sendData[] = "Hello World";
+	//char sendData[1000] = "가"; // CP949 = KS-X-1001 (한글 2바이트) + KS-X-1003 (로마 1바이트)
+	//char sendData[1000] = u8"가"; // UTF-8 = UNICODE (한글 3바이트, 로마 1바이트)
+	//WCHAR sendData[1000] = L"가"; // UTF-16 = UNICODE (한글/로마 2바이트)
+	//TCHAR sendData[1000] = _T("가"); 
 
 	while (true)
 	{
 		vector<BuffData> buffs{ BuffData {100, 1.5f}, BuffData{200, 2.3f}, BuffData {300, 0.7f } };
-		SendBufferRef sendBuffer = ServerPacketHandler::Make_S_TEST(1001, 100, 10, buffs);
+		SendBufferRef sendBuffer = ServerPacketHandler::Make_S_TEST(1001, 100, 10, buffs, L"안녕안녕");
 		GSessionManager.Broadcast(sendBuffer);
 
 		this_thread::sleep_for(250ms);
