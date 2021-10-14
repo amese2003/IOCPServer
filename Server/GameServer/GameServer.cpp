@@ -17,7 +17,16 @@ using namespace std;
 #include "ServerPacketHandler.h"
 #include <tchar.h>
 
+// 패킷 직렬화(Serialization)
 
+class Player
+{
+public:
+	int32 hp = 0;
+	int32 attack = 0;
+	Player* target = nullptr;
+	vector<int32> buffs;
+};
 
 int main()
 {
