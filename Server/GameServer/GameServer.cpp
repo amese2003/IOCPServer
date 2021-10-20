@@ -17,6 +17,8 @@ using namespace std;
 #include "Session.h"
 #include "ClientPacketHandler.h"
 #include <tchar.h>
+#include "Job.h"
+#include "Room.h"
 
 // 패킷 직렬화(Serialization)
 
@@ -31,6 +33,21 @@ public:
 
 int main()
 {
+	// Test JOB
+	//{
+	//	// [일감 의뢰 내용] : 1번 유저한테 10만큼 힐 '줘'!
+	//	// 행동 : Heal
+	//	// 인자 : 1번 유저, 10이라는 힐량
+	//	HealJob healJob;
+	//	healJob._target = 1;
+	//	healJob._healValue = 10;
+
+	//	// 나-중에
+	//	healJob.Execute();
+	//}
+
+	// job
+
 	ClientPacketHandler::Init();
 
 	ServerServiceRef service = MakeShared<ServerService>(
@@ -54,7 +71,11 @@ int main()
 			});
 	}
 
-	cout << "Client Connected!" << endl;
+	while (true)
+	{
+		GRoom.FlushJob();
+		this_thread::sleep_for(1s);
+	}
 
 	GThreadManager->Join();
 
