@@ -21,30 +21,33 @@ using namespace std;
 #include "Room.h"
 
 // 패킷 직렬화(Serialization)
+void HealByValue(int64 target, int32 value)
+{
+	cout << target << "한테 힐" << value << "만큼 줌" << endl;
+}
 
-class Player
+class Knight
 {
 public:
-	int32 hp = 0;
-	int32 attack = 0;
-	Player* target = nullptr;
-	vector<int32> buffs;
+	void HealMe(int32 val)
+	{
+		cout << "HealMe! " << val << endl;
+	}
 };
+
 
 int main()
 {
 	// Test JOB
-	//{
-	//	// [일감 의뢰 내용] : 1번 유저한테 10만큼 힐 '줘'!
-	//	// 행동 : Heal
-	//	// 인자 : 1번 유저, 10이라는 힐량
-	//	HealJob healJob;
-	//	healJob._target = 1;
-	//	healJob._healValue = 10;
-
-	//	// 나-중에
-	//	healJob.Execute();
-	//}
+	{
+		FuncJob<void, int64, int32> job(HealByValue, 100, 10);
+		job.Execute();
+	}
+	{
+		Knight k1;
+		MemberJob job2(&k1, &Knight::HealMe, 10);
+		job2.Execute();
+	}
 
 	// job
 
