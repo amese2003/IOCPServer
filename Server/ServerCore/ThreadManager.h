@@ -20,6 +20,8 @@ public:
 	static void InitTLS();
 	static void DestroyTLS();
 
+	static void DoGloablQueueWork();
+
 private:
 	Mutex			_lock;
 	vector<thread>	_threads;

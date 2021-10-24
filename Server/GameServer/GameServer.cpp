@@ -20,6 +20,25 @@ using namespace std;
 #include "Job.h"
 #include "Room.h"
 
+enum
+{
+	WORKER_TICK = 64
+};
+
+void DoWorkerJob(ServerServiceRef& service)
+{
+	while (true)
+	{
+		LEndTickCount = ::GetTickCount64() + WORKER_TICK;
+
+		// 네트워크 입출력 처리 -> 인게임 로직까지 (패킷 핸들러에 의해
+		service->GetIocpCore()->Dispatch(100);
+
+		// 글로벌 큐
+		ThreadManager::DoGloablQueueWork();
+	}
+}
+
 int main()
 {
 	ClientPacketHandler::Init();
@@ -34,16 +53,20 @@ int main()
 
 	for (int32 i = 0; i < 5; i++)
 	{
-		GThreadManager->Launch([=]()
+		GThreadManager->Launch([&service]()
 			{
 
 				while (true)
 				{
-					service->GetIocpCore()->Dispatch();
+					DoWorkerJob(service);
 				}
 
 			});
 	}
+
+	// main thread
+	DoWorkerJob(service);
+
 
 	GThreadManager->Join();
 
