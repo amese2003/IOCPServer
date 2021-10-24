@@ -34,6 +34,9 @@ void DoWorkerJob(ServerServiceRef& service)
 		// 네트워크 입출력 처리 -> 인게임 로직까지 (패킷 핸들러에 의해
 		service->GetIocpCore()->Dispatch(100);
 
+		// 예약된 일감 처리
+		ThreadManager::DistributeReserveJobs();
+
 		// 글로벌 큐
 		ThreadManager::DoGloablQueueWork();
 	}
@@ -41,6 +44,9 @@ void DoWorkerJob(ServerServiceRef& service)
 
 int main()
 {
+	GRoom->DoTimer(1000, [] {cout << "Hello 1000" << endl; });
+	GRoom->DoTimer(2000, [] {cout << "Hello 2000" << endl; });
+	GRoom->DoTimer(3000, [] {cout << "Hello 3000" << endl; });
 	ClientPacketHandler::Init();
 
 	ServerServiceRef service = MakeShared<ServerService>(

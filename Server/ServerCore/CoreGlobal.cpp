@@ -6,12 +6,14 @@
 #include "SocketUtils.h"
 #include "SendBuffer.h"
 #include "GlobalQueue.h"
+#include "JobTimer.h"
 
 
 ThreadManager*		GThreadManager = nullptr;
 Memory*				GMemory = nullptr;
 SendBufferManager*	GSendBufferManager = nullptr;
 GlobalQueue*		GGlobalQueue = nullptr;
+JobTimer*			GJobTimer = nullptr;
 
 
 DeadLockProfiler*	GDeadLockProfiler = nullptr;
@@ -26,6 +28,7 @@ public:
 		GSendBufferManager = new SendBufferManager();
 		GDeadLockProfiler = new DeadLockProfiler();
 		GGlobalQueue = new GlobalQueue();
+		GJobTimer = new JobTimer();
 		SocketUtils::Init();
 	}
 	~CoreGlobal()
@@ -34,6 +37,7 @@ public:
 		delete GMemory;
 		delete GSendBufferManager;
 		delete GGlobalQueue;
+		delete GJobTimer;
 		delete GDeadLockProfiler;
 		SocketUtils::Clear();
 	}

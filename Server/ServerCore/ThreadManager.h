@@ -21,6 +21,7 @@ public:
 	static void DestroyTLS();
 
 	static void DoGloablQueueWork();
+	static void DistributeReserveJobs();
 
 private:
 	Mutex			_lock;

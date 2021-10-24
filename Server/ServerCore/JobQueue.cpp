@@ -2,7 +2,7 @@
 #include "JobQueue.h"
 #include "GlobalQueue.h"
 
-void JobQueue::Push(JobRef&& job)
+void JobQueue::Push(JobRef job, bool pushOnly)
 {
 	const int32 prevCount = _jobcount.fetch_add(1);
 	_jobs.Push(job); // WRITE_LOCK
@@ -12,7 +12,7 @@ void JobQueue::Push(JobRef&& job)
 	if (prevCount == 0)
 	{
 		// 이미 실행중인 JobQueue가 없으면 실행
-		if (LCurrentJobQueue == nullptr)
+		if (LCurrentJobQueue == nullptr && pushOnly == false)
 		{
 			Execute();
 		}
