@@ -22,6 +22,9 @@
     <Filter Include="DB">
       <UniqueIdentifier>{53b94f84-f736-4ec7-a9af-300624dedee3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="XML">
+      <UniqueIdentifier>{2ebc0808-f427-471e-af9d-033ee3b6306e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CorePch.h">
@@ -105,9 +108,6 @@
     <ClInclude Include="BufferWritter.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="LockQueue.h">
-      <Filter>Job</Filter>
-    </ClInclude>
     <ClInclude Include="Job.h">
       <Filter>Job</Filter>
     </ClInclude>
@@ -128,6 +128,27 @@
     </ClInclude>
     <ClInclude Include="DBBind.h">
       <Filter>DB</Filter>
+    </ClInclude>
+    <ClInclude Include="LockQueue.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml.hpp">
+      <Filter>XML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_iterators.hpp">
+      <Filter>XML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_print.hpp">
+      <Filter>XML</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml_utils.hpp">
+      <Filter>XML</Filter>
+    </ClInclude>
+    <ClInclude Include="FileUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="XmlParser.h">
+      <Filter>XML</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -200,9 +221,6 @@
     <ClCompile Include="Job.cpp">
       <Filter>Job</Filter>
     </ClCompile>
-    <ClCompile Include="LockQueue.cpp">
-      <Filter>Job</Filter>
-    </ClCompile>
     <ClCompile Include="JobQueue.cpp">
       <Filter>Job</Filter>
     </ClCompile>
@@ -220,6 +238,15 @@
     </ClCompile>
     <ClCompile Include="DBBind.cpp">
       <Filter>DB</Filter>
+    </ClCompile>
+    <ClCompile Include="LockQueue.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="FileUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="XmlParser.cpp">
+      <Filter>XML</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
