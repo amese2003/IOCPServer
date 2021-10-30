@@ -80,7 +80,7 @@ bool DBConnection::Fetch()
 int32 DBConnection::GetRowCount()
 {
 	SQLLEN count = 0;
-	SQLRETURN ret = ::SQLRowCount(_statement, OUT & count);
+	SQLRETURN ret = ::SQLRowCount(_statement, OUT &count);
 
 	if (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO)
 		return static_cast<int32>(count);
@@ -255,10 +255,10 @@ void DBConnection::HandleError(SQLRETURN ret)
 			_statement,
 			index,
 			sqlState,
-			OUT & nativeErr,
+			OUT &nativeErr,
 			errMsg,
 			_countof(errMsg),
-			OUT & msgLen
+			OUT &msgLen
 		);
 
 		if (errorRet == SQL_NO_DATA)

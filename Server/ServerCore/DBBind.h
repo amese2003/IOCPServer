@@ -2,10 +2,10 @@
 #include "DBConnection.h"
 
 template<int32 C>
-struct FullBits { enum {value = (1 << (C - 1)) | FullBits<C-1>::value }; };
+struct FullBits { enum { value = (1 << (C - 1)) | FullBits<C-1>::value }; };
 
 template<>
-struct FullBits<1> { enum {value = 1}; };
+struct FullBits<1> { enum { value = 1 }; };
 
 template<>
 struct FullBits<0> { enum { value = 0 }; };
@@ -18,7 +18,7 @@ public:
 		: _dbConnection(dbConnection), _query(query)
 	{
 		::memset(_paramIndex, 0, sizeof(_paramIndex));
-		::memset(_columnIndex, 0, sizeof(_paramIndex));
+		::memset(_columnIndex, 0, sizeof(_columnIndex));
 		_paramFlag = 0;
 		_columnFlag = 0;
 		dbConnection.Unbind();

@@ -1,8 +1,13 @@
 #include "pch.h"
 #include "DBConnectionPool.h"
 
+/*-------------------
+	DBConnectionPool
+--------------------*/
+
 DBConnectionPool::DBConnectionPool()
 {
+
 }
 
 DBConnectionPool::~DBConnectionPool()
@@ -14,19 +19,17 @@ bool DBConnectionPool::Connect(int32 connectionCount, const WCHAR* connectionStr
 {
 	WRITE_LOCK;
 
-	if (::SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_enviroment) != SQL_SUCCESS)
+	if (::SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_environment) != SQL_SUCCESS)
 		return false;
 
-	if (::SQLSetEnvAttr(_enviroment, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0) != SQL_SUCCESS)
+	if (::SQLSetEnvAttr(_environment, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0) != SQL_SUCCESS)
 		return false;
 
 	for (int32 i = 0; i < connectionCount; i++)
 	{
 		DBConnection* connection = xnew<DBConnection>();
-
-		if (connection->Connect(_enviroment, connectionString) == false)
+		if (connection->Connect(_environment, connectionString) == false)
 			return false;
-
 
 		_connections.push_back(connection);
 	}
@@ -38,10 +41,10 @@ void DBConnectionPool::Clear()
 {
 	WRITE_LOCK;
 
-	if (_enviroment != SQL_NULL_HANDLE)
+	if (_environment != SQL_NULL_HANDLE)
 	{
-		::SQLFreeHandle(SQL_HANDLE_ENV, _enviroment);
-		_enviroment = SQL_NULL_HANDLE;
+		::SQLFreeHandle(SQL_HANDLE_ENV, _environment);
+		_environment = SQL_NULL_HANDLE;
 	}
 
 	for (DBConnection* connection : _connections)
